@@ -1,24 +1,9 @@
 import { Link } from "react-router-dom";
-import { UserContext } from "../context/UserContext";
-import { useContext } from "react";
-import { Avatar, Button } from "antd";
+import { Button } from "antd";
+import {useAuthStore} from "../stores/useAuthStore";
 
 export default function Navbar() {
-  const context = useContext(UserContext);
-  if (!context) return null;
-
-  const { user, setUser } = context;
-
-  const handleLogin = () => {
-    setUser({
-      name: "hung09",
-      avatar: "https://i.pravatar.cc/40",
-    });
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-  };
+  const { user, logout } = useAuthStore();
 
   return (
     <nav className="bg-blue-600 text-white shadow">
@@ -41,18 +26,35 @@ export default function Navbar() {
             Thêm mới
           </Link>
         </div>
+
+        {/* User */}
         <div className="hidden md:flex items-center space-x-4">
-            <Button>signup</Button>
-          {user?.avatar && (
-            <Avatar src={user.avatar}></Avatar>
+          
+          {/* Nếu chưa login */}
+          {!user && (
+            <>
+            <Link to="/register" className="hover:text-gray-200">
+                Đăng ký
+              </Link>
+              <Link to="/login" className="hover:text-gray-200">
+                Đăng nhập
+              </Link>
+              
+              <span>Chua dang nhap</span>
+            </>
           )}
-          <span>{user?.name ?? "Guest"}</span>
-          {!user ? (
-            <Button onClick={handleLogin}>signin</Button>
-          ) : (
-            <Button danger onClick={handleLogout}>
-              Logout
-            </Button>
+
+          {/* Nếu đã login */}
+          {user && (
+            <>
+              <span className="text-green-200">Đã đăng nhập</span>
+              {user && <span>{user.email}</span>}
+              <span>{user.name}</span>
+
+              <Button danger onClick={logout}>
+                Logout
+              </Button>
+            </>
           )}
         </div>
       </div>
