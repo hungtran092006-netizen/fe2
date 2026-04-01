@@ -1,98 +1,83 @@
-import { Table,Image,Spin,Button,Popconfirm } from "antd";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useQuery,useMutation,useQueryClient } from "@tanstack/react-query";
+import { Table,Image,Spin,Button,Popconfirm} from "antd";
 
-type movies={
-  id:number,
-  title:string,
-  director:string,
-  year:string,
-  poster:string,
-  dercription:string,
+type books={
+    id :number,
+    title:string,
+    quantity:string,
+    image:string,
+    genre:string,
 }
 const ListPage=()=>{
- 
-  const {data,isLoading,isError}=useQuery<movies[]>({
-    queryKey:["getAllmovies"],
-    queryFn:async()=>{
-      const res =await axios.get("http://localhost:3000/movies");
-      return res.data;
+    const {data}= useQuery<books[]>({
+        queryKey:["getallbook"],
+        queryFn:async()=>{
+             const res=await axios.get("http://localhost:3000/books");
+            return res.data;
+        },
+    });
+    const qc=useQueryClient();
+    const {mutate}=useMutation({
+        mutationFn:async(id:number)=>{
+            await axios.delete(`http://localhost:3000/books/${id}`);
+        },
+        onSuccess:()=>{
+            toast.success("xoa thanh cong");
+            qc.invalidateQueries({queryKey:["getallbook"]});
+        },
+    });
+  const columns=[
+    {
+        title:"ID",
+        dataIndex:"id",
     },
-  });
-
-  const qc=useQueryClient();
-  const {mutate}=useMutation({
-    mutationFn:async(id:number)=>{
-      await axios.delete(`http://localhost:3000/movies/${id}`);
+     {
+        title:"ten",
+        dataIndex:"title",
     },
-  
-  onSuccess:()=>{
-    toast.success("xoa phim thanh cong");
-    qc.invalidateQueries({queryKey:["getAllmovies"]});
-  },
-});
-const columns=[
-  {
-    title:"ID",
-    dataIndex:"id",
-  },
-  {
-    title:"ten phim",
-    dataIndex:"title"
-  },
-  {
-    title:"the loai",
-    dataIndex:"director"
-  },
-  {
-    title:"nam",
-    dataIndex:"year"
-  },
-  {
-    title:"anh",
-    dataIndex:"poster",
-    render: (image: string) => <Image width={100} src={image} />
-  },
-  {
-    title:"mo ta",
-    dataIndex:"description"
-  },
-   {
-      title: "Action",
-     render: (_: any, record: any) => (
-  <>
-    <Popconfirm
-      title="xoa truyen"
-      description="xoa truyen khong?"
-      okText="co"
-      cancelText="khong"
-      onConfirm={() => mutate(record.id)}
-    >
-      <Button danger>Delete</Button>
-    </Popconfirm>
-
-    <Button type="primary" style={{ marginLeft: 8 }}>
-      <Link to={`/edit/${record.id}`}>Edit</Link>
-    </Button>
-  </>
-),
+     {
+        title:"so luong",
+        dataIndex:"quantity",
     },
-];
-    if (isLoading) return <Spin />;
-    if (isError) return <p>Lỗi khi tải dữ liệu</p>;
-
-
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-6">Danh sách</h1>
-
-      <div className="overflow-x-auto">
-        <Table columns={columns} dataSource={data ||[]} rowKey="id"  />
-      </div>
+     {
+        title:"anh",
+        dataIndex:"image",
+        render:(image:string)=><Image width={100} src={image}/>
+    },
+     {
+        title:"genre",
+        dataIndex:"genre",
+    },
+    {
+        title:"action",
+        render:(_:any,record:any)=>(
+            <>
+         <Popconfirm
+         title="xoa truyen"
+         description="xoa truyen k"
+         okText="ok"
+         cancelText="ko"
+         onConfirm={()=>mutate(record.id)}
+         >
+          <Button danger>delete</Button>
+         </Popconfirm>
+           <Button type="primary" style={{marginLeft:8}}>
+          <Link to={`/edit/${record.id}`}>sua</Link>
+         </Button>
+            </>
+        )
+    }
+  ];
+  return(
+    <div className="">
+        <h1 className="">danh sach</h1>
+        <div className="">
+            <Table columns={columns} dataSource={data ||[]} rowKey="id"/>
+        </div>
     </div>
-  );
+  )
 }
-
 export default ListPage;

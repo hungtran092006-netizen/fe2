@@ -1,74 +1,60 @@
-import { Button, Input, Form,  Select } from "antd";
-import { useMutation } from "@tanstack/react-query";
+import {useMutation} from "@tanstack/react-query";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-type movies={
- 
-  title:string,
-  director:string,
-  year:string,
-  poster:string,
-  description:string,
+import {  useNavigate } from "react-router-dom";
+import { Button,Input,Form} from "antd";
+
+type books={
+    id:number,
+    title:string,
+    quantity:string,
+    image:string,
+    genre:string,
 }
-
-function AddPage() {
-  const navigate=useNavigate();
-  const [form] = Form.useForm();
-  const mutation=useMutation({
-    mutationFn:async(value:movies)=>{
-      return await axios.post("http://localhost:3000/movies",value);
-    },
-    onSuccess:()=>{
-      toast.success("them thanh cong");
-      navigate("/list")
-    },
-    onError:()=>{
-      toast.error("them that bai");
-    },
-  });
-  const onFinish=(values:movies)=>{
-    mutation.mutate({
-      ...values,
-
+const AddPage=()=>{
+    const navigate=useNavigate();
+    const [form]=Form.useForm();
+    const mutation=useMutation({
+        mutationFn:async(value:books)=>{
+           return await axios.post(`http://localhost:3000/books`,value);
+        },
+        onSuccess:()=>{
+            toast.success("them thanh cong");
+            navigate("/list")
+        },
+        onError:()=>{
+            toast.error("them that bai")
+        },
     });
-  };
-  return (
-    <Form form={form} layout="vertical" onFinish={onFinish}>
-      <Form.Item name="title" label="Tên phim"
-      rules={[{ required: true, message: "Nhập ten phim" }]}
-      >
-        
-        <Input />
-      </Form.Item>
-
-    <Form.Item label="director" name="director">
-  <Select
-    options={[
-      { label: "marvel", value: "marvel" },
-      { label: "hihi", value: "hihi" },
-      { label: "hehe", value: "hehe" },
-    ]}
-  />
-</Form.Item>
-
-         <Form.Item label="year" name="year">
-          <Input placeholder="nam" />
-        </Form.Item>
-
-         <Form.Item label="poster" name="poster">
-          <Input placeholder="anh" />
-        </Form.Item>
-
-         <Form.Item label="description" name="description">
-          <Input placeholder="mo ta"/>
-        </Form.Item>
-
-      <Button type="primary" htmlType="submit" loading={mutation.isPending}>
-        Cập nhật
-      </Button>
-    </Form>
-  );
+    const onFinish=(values:books)=>{
+        mutation.mutate({
+            ...values,
+        });
+    };
+    return(
+        <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form.Item name="title" label="ten phim"
+            rules={[{required:true,message:"nhap ten"}]}
+            >
+              <Input/>
+            </Form.Item>
+            <Form.Item name="quantity" label="so luong"
+            rules={[{required:true,message:"nhap ten"}]}
+            >
+              <Input/>
+            </Form.Item>
+            <Form.Item name="image" label="anh"
+            rules={[{required:true,message:"nhap anh"}]}
+            >
+              <Input/>
+            </Form.Item>
+            <Form.Item name="genre" label="genre"
+            rules={[{required:true,message:"nhap ten"}]}
+            >
+              <Input/>
+            </Form.Item>
+            <Button htmlType="submit">cap nhat</Button>
+            </Form>
+    )
 }
-
 export default AddPage;
